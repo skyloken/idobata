@@ -8,10 +8,11 @@
 #include "idobata.h"
 #include <sys/select.h>
 #include <signal.h>
+#include <errno.h>
 
 /* サーバー側の処理 */
 void idobata_server(int port_number, char *server_username) {
-    printf("I am Server.\n");
+    printf("This is Server.\n");
 
     int udp_sock, tcp_sock;
     char s_buf[BUFSIZE];
@@ -131,7 +132,7 @@ void idobata_server(int port_number, char *server_username) {
                 strcpy(x.username, packet->data);
                 insert_rear(&list, &x);
                 FD_SET(sock_accepted, &mask);
-                printf("%s Joined.\n", x.username);
+                printf("%s joined.\n", x.username);
 
                 /* 全メンバー表示 */
                 print_member(&list, server_username);
@@ -160,7 +161,21 @@ void idobata_server(int port_number, char *server_username) {
                     list.crnt = ptr;
                     if (send_sock != ptr->data.sock) {
                         /* 発言したクライアント以外に送信 */
-                        Send(ptr->data.sock, s_buf, strlen(s_buf), 0);
+                        if (Send(ptr->data.sock, s_buf, strlen(s_buf), 0) == EPIPE) {
+                            /* SIGPIPE発生時の対応 */
+                            /* クライアントとの接続を閉じ、そのクライアントの接続情報を抹消 */
+                            printf("%s quit.\n", ptr->data.username);
+
+                            FD_CLR(ptr->data.sock, &mask);
+                            close(ptr->data.sock);
+                            remove_current(&list);
+
+                            /* 全メンバー表示 */
+                            print_member(&list, server_username);
+
+                            /* 最大ディスクリプタ更新 */
+                            Max_sd = max_disc(udp_sock, tcp_sock, &list);
+                        }
                     }
                     ptr = ptr->next;
                 }

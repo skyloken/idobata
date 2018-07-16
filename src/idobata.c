@@ -23,12 +23,12 @@ int main(int argc, char *argv[]) {
     /* オプション文字列の取得 */
     opterr = 0;
     while (1) {
-        c = getopt(argc, argv, "n:p:c:h");
+        c = getopt(argc, argv, "u:p:h");
         if (c == -1)
             break;
 
         switch (c) {
-            case 'n': /* ユーザ名 */
+            case 'u': /* ユーザ名 */
                 snprintf(username, 15, "%s", optarg);
                 break;
 
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
                 break;
 
             case 'h':
-                fprintf(stderr, "Usage: %s -n username -p port_number\n", argv[0]);
+                fprintf(stderr, "Usage: %s -u username -p port_number\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }

@@ -8,7 +8,7 @@
 
 /* クライアント側の処理 */
 void idobata_client(char *servername, int port_number, char *username) {
-    printf("I am Client.\n");
+    printf("This is Client.\n");
 
     int sock;
     char s_buf[BUFSIZE], r_buf[BUFSIZE];
@@ -19,6 +19,9 @@ void idobata_client(char *servername, int port_number, char *username) {
     /* サーバに接続する */
     sock = init_tcpclient(servername, (in_port_t) port_number);
     printf("Connected.\n");
+
+    /* SIGPIPEを無視 */
+    signal(SIGPIPE, SIG_IGN);
 
     /* JOINを送信 */
     create_packet(JOIN, username, s_buf);
