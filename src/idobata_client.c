@@ -5,6 +5,7 @@
  *      Author: b6122502
  */
 #include "idobata.h"
+#include <signal.h>
 
 /* クライアント側の処理 */
 void idobata_client(char *servername, int port_number, char *username) {
